@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>AR Room Planner | Pro Edition</title>
     
+    <!-- Latest Model Viewer Engine -->
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.2.0/model-viewer.min.js"></script>
+    <!-- Professional Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <style>
@@ -22,65 +24,75 @@
             color: var(--text-main); overflow: hidden; 
         }
 
+        /* Fullscreen AR Engine Viewport */
         model-viewer {
             width: 100vw; height: 100vh;
             background-color: #111;
             --poster-color: transparent;
         }
 
-        /* Top Bar */
+        /* Branding Top Bar */
         .header {
             position: absolute; top: 0; width: 100%; padding: 25px 20px;
             display: flex; justify-content: space-between; align-items: center;
             background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, transparent 100%);
             z-index: 10; box-sizing: border-box;
         }
-        .brand { font-weight: 900; letter-spacing: 1px; font-size: 1.1rem; text-transform: uppercase; }
+        .brand { font-weight: 900; letter-spacing: 1.5px; font-size: 1.1rem; text-transform: uppercase; }
         .brand span { color: var(--primary); }
 
+        /* AR Trigger Button */
         #ar-button {
             background: var(--primary);
             color: white; border: none; padding: 12px 22px;
             border-radius: 50px; font-weight: 700; font-size: 0.85rem;
             display: flex; align-items: center; gap: 10px;
             box-shadow: 0 4px 15px rgba(0, 122, 255, 0.4);
+            cursor: pointer;
         }
 
-        /* Bottom Menu */
+        /* Bottom Control Drawer (Glassmorphism) */
         .drawer {
             position: absolute; bottom: 20px; left: 12px; right: 12px;
             background: var(--surface);
             backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
             border-radius: 30px; border: 1px solid rgba(255,255,255,0.1);
-            padding: 20px; z-index: 100;
+            padding: 24px; z-index: 100;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
         }
 
-        .section-header { font-size: 0.65rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px; }
+        .section-header { font-size: 0.65rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; }
 
-        .theme-carousel { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin-bottom: 18px; }
+        /* Horizontal Theme Selector */
+        .theme-carousel { display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; margin-bottom: 20px; }
         .theme-carousel::-webkit-scrollbar { display: none; }
 
         .theme-pill {
             background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
-            color: white; padding: 10px 20px; border-radius: 50px; 
-            white-space: nowrap; font-size: 0.8rem; font-weight: 600;
+            color: white; padding: 10px 22px; border-radius: 50px; 
+            white-space: nowrap; font-size: 0.85rem; font-weight: 600;
+            transition: 0.3s;
         }
-        .theme-pill.active { background: white; color: black; }
+        .theme-pill.active { background: white; color: black; transform: scale(1.05); }
 
-        .action-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        /* 4x1 Furniture Grid */
+        .action-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
         
         .action-item {
             background: transparent; border: none; color: var(--text-dim);
-            display: flex; flex-direction: column; align-items: center; gap: 8px;
+            display: flex; flex-direction: column; align-items: center; gap: 10px;
+            cursor: pointer;
         }
         .action-item i { 
-            width: 52px; height: 52px; background: rgba(255,255,255,0.05); 
-            border-radius: 18px; display: flex; align-items: center; justify-content: center;
-            font-size: 1.1rem; transition: 0.3s;
+            width: 58px; height: 58px; background: rgba(255,255,255,0.04); 
+            border-radius: 22px; display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
+        .action-item span { font-size: 0.6rem; font-weight: 800; letter-spacing: 0.5px; }
+        
         .action-item.active { color: var(--primary); }
-        .action-item.active i { background: var(--primary); color: white; transform: translateY(-3px); }
-        .action-item span { font-size: 0.55rem; font-weight: 800; }
+        .action-item.active i { background: var(--primary); color: white; transform: translateY(-6px); box-shadow: 0 8px 20px rgba(0, 122, 255, 0.3); }
+
     </style>
 </head>
 <body>
@@ -88,14 +100,15 @@
     <header class="header">
         <div class="brand">AR <span>ROOM PLANNER</span></div>
         <button id="ar-button" slot="ar-button">
-            <i class="fa-solid fa-cube"></i> START AR
+            <i class="fa-solid fa-expand"></i> START AR
         </button>
     </header>
 
     <!-- 
-        Fungsi Move, Rotate, Resize diaktifkan melalui:
-        1. ar-scale="auto" (Cubit untuk Resize)
-        2. camera-controls (Satu jari untuk Rotate/Move)
+        INTERACTIVE AR ENGINE CONFIGURATION:
+        - src: Default starting model
+        - ar-scale="auto": Enables Pinch-to-Resize
+        - camera-controls: Enables Drag-to-Rotate and Swipe-to-Move
     -->
     <model-viewer id="main-view"
         src="modern_desk.glb" 
@@ -106,10 +119,11 @@
         camera-controls
         interaction-prompt="auto"
         shadow-intensity="2"
+        shadow-softness="0.5"
         exposure="1.2">
 
         <div class="drawer">
-            <div class="section-header">1. Style Theme</div>
+            <div class="section-header">1. Select Style</div>
             <div class="theme-carousel">
                 <button id="t-modern" class="theme-pill active" onclick="setTheme('modern')">Modern</button>
                 <button id="t-wizard" class="theme-pill" onclick="setTheme('wizard')">Wizard</button>
@@ -117,7 +131,7 @@
                 <button id="t-gaming" class="theme-pill" onclick="setTheme('gaming')">Gaming</button>
             </div>
 
-            <div class="section-header">2. Furniture Selection</div>
+            <div class="section-header">2. Select Furniture</div>
             <div class="action-grid">
                 <button id="i-desk" class="action-item active" onclick="setItem('desk')">
                     <i class="fa-solid fa-desktop"></i>
@@ -141,28 +155,35 @@
 
     <script>
         const viewer = document.getElementById('main-view');
+        
+        // Dynamic state management for 16 model combinations
         let currentTheme = 'modern';
         let currentItem = 'desk';
 
         function setTheme(t) {
             currentTheme = t;
+            // Update Theme UI
             document.querySelectorAll('.theme-pill').forEach(b => b.classList.remove('active'));
             document.getElementById('t-' + t).classList.add('active');
-            updateModel();
+            updateScene();
         }
 
         function setItem(i) {
             currentItem = i;
+            // Update Furniture UI
             document.querySelectorAll('.action-item').forEach(b => b.classList.remove('active'));
             document.getElementById('i-' + i).classList.add('active');
-            updateModel();
+            updateScene();
         }
 
-        function updateModel() {
-            // Membina nama fail: tema_perabot.glb
-            const target = currentTheme + "_" + currentItem + ".glb";
-            viewer.src = target;
-            console.log("Loading: " + target);
+        function updateScene() {
+            // Constructing the file path based on selection: e.g., wizard_bed.glb
+            const targetPath = `${currentTheme}_${currentItem}.glb`;
+            
+            // Inject the new source into the AR engine
+            viewer.src = targetPath;
+            
+            console.log("Loading AR Asset: " + targetPath);
         }
     </script>
 </body>
