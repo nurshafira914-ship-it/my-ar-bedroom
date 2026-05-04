@@ -3,187 +3,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Borneya | AR Interior Design</title>
+    <title>AR Room Planner | Professional Interior Tool</title>
     
-    <!-- Model Viewer & FontAwesome for Professional Icons -->
+    <!-- Latest Model Viewer & Icon Library -->
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.2.0/model-viewer.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <style>
         :root {
             --primary: #007AFF;
-            --surface: rgba(18, 18, 18, 0.85);
-            --accent: #00E5FF;
+            --surface: rgba(15, 15, 15, 0.95);
+            --glass: rgba(255, 255, 255, 0.1);
             --text-main: #FFFFFF;
-            --text-dim: #A0A0A0;
+            --text-dim: #888888;
         }
 
         body { 
             margin: 0; 
             background: #000; 
-            font-family: 'Inter', -apple-system, sans-serif; 
+            font-family: -apple-system, BlinkMacSystemFont, "Inter", sans-serif; 
             color: var(--text-main); 
             overflow: hidden; 
         }
 
-        /* Fullscreen Viewport */
+        /* Viewport Container */
         model-viewer {
             width: 100vw;
             height: 100vh;
-            background-color: #000;
+            background-color: #111;
             --poster-color: transparent;
         }
 
-        /* Top Header Navigation */
+        /* Top Navigation Header */
         .header {
-            position: absolute; top: 0; width: 100%; padding: 20px 24px;
+            position: absolute; top: 0; width: 100%; padding: 25px 20px;
             display: flex; justify-content: space-between; align-items: center;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, transparent 100%);
+            background: linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, transparent 100%);
             z-index: 10;
+            box-sizing: border-box;
         }
-        .brand { font-size: 1.1rem; font-weight: 800; letter-spacing: 2px; }
+        .brand { font-weight: 900; letter-spacing: 1px; font-size: 1.1rem; text-transform: uppercase; }
         .brand span { color: var(--primary); }
 
-        #ar-launch-btn {
+        /* AR Activation Button */
+        #ar-button {
             background: var(--primary);
-            color: white; border: none; padding: 10px 20px;
-            border-radius: 50px; font-weight: 600; font-size: 0.85rem;
-            display: flex; align-items: center; gap: 8px;
-            box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3);
+            color: white; border: none; padding: 12px 22px;
+            border-radius: 50px; font-weight: 700; font-size: 0.85rem;
+            display: flex; align-items: center; gap: 10px;
+            box-shadow: 0 4px 20px rgba(0, 122, 255, 0.4);
+            cursor: pointer;
         }
 
-        /* Bottom Interactive Drawer */
-        .control-panel {
-            position: absolute; bottom: 20px; left: 16px; right: 16px;
+        /* Interaction Drawer */
+        .drawer {
+            position: absolute; bottom: 20px; left: 12px; right: 12px;
             background: var(--surface);
-            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-            border-radius: 28px; border: 1px solid rgba(255,255,255,0.1);
-            padding: 20px; z-index: 100;
-            display: flex; flex-direction: column; gap: 18px;
+            backdrop-filter: blur(35px); -webkit-backdrop-filter: blur(35px);
+            border-radius: 32px; border: 1px solid rgba(255,255,255,0.08);
+            padding: 24px; z-index: 100;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
         }
 
-        .label { font-size: 0.65rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.2px; }
+        .section-header { font-size: 0.65rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 15px; }
 
-        /* Theme Carousel */
-        .theme-scroll { 
-            display: flex; gap: 10px; overflow-x: auto; 
-            scrollbar-width: none; padding-bottom: 4px;
-        }
-        .theme-scroll::-webkit-scrollbar { display: none; }
+        /* Theme Selector Carousel */
+        .theme-carousel { display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; margin-bottom: 25px; }
+        .theme-carousel::-webkit-scrollbar { display: none; }
 
-        .theme-chip {
-            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
-            color: var(--text-main); padding: 8px 18px; border-radius: 50px; 
-            white-space: nowrap; font-size: 0.8rem; font-weight: 600;
-            transition: all 0.2s ease;
+        .theme-pill {
+            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
+            color: white; padding: 10px 22px; border-radius: 50px; 
+            white-space: nowrap; font-size: 0.85rem; font-weight: 600;
+            transition: all 0.3s ease;
         }
-        .theme-chip.active { background: white; color: black; border-color: white; }
+        .theme-pill.active { background: white; color: black; transform: scale(1.05); }
 
         /* Furniture Action Grid */
-        .furniture-grid { 
-            display: grid; grid-template-columns: repeat(4, 1fr); 
-            gap: 12px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 18px;
-        }
+        .action-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
         
-        .item-action {
+        .action-item {
             background: transparent; border: none; color: var(--text-dim);
-            display: flex; flex-direction: column; align-items: center; gap: 8px;
+            display: flex; flex-direction: column; align-items: center; gap: 10px;
             transition: 0.3s; cursor: pointer;
         }
-        .item-action i { 
-            width: 52px; height: 52px; background: rgba(255,255,255,0.05); 
-            border-radius: 18px; display: flex; align-items: center; justify-content: center;
-            font-size: 1.1rem; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        .action-item i { 
+            width: 58px; height: 58px; background: rgba(255,255,255,0.04); 
+            border-radius: 22px; display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .item-action span { font-size: 0.6rem; font-weight: 700; }
+        .action-item span { font-size: 0.6rem; font-weight: 800; letter-spacing: 0.5px; }
         
-        .item-action.active { color: var(--primary); }
-        .item-action.active i { background: var(--primary); color: white; transform: scale(1.1); }
+        .action-item.active { color: var(--primary); }
+        .action-item.active i { background: var(--primary); color: white; transform: translateY(-6px) scale(1.1); box-shadow: 0 8px 20px rgba(0, 122, 255, 0.3); }
 
     </style>
 </head>
 <body>
 
     <header class="header">
-        <div class="brand">BORNE<span>YA</span></div>
-        <button id="ar-launch-btn" slot="ar-button">
+        <div class="brand">AR <span>ROOM PLANNER</span></div>
+        <button id="ar-button" slot="ar-button">
             <i class="fa-solid fa-expand"></i> START AR
         </button>
     </header>
 
-    <!-- Main 3D Engine -->
-    <model-viewer id="view3d"
+    <!-- 
+        AR Configuration:
+        - ar-scale="auto" allows pinch-to-resize
+        - camera-controls allows rotation and movement
+    -->
+    <model-viewer id="planner-viewer"
         src="modern_desk.glb"
         ar
         ar-modes="scene-viewer webxr quick-look"
         ar-placement="floor"
+        ar-scale="auto"
         camera-controls
-        shadow-intensity="1.5"
-        shadow-softness="0.8"
-        exposure="1.1"
-        touch-action="pan-y">
+        touch-action="pan-y"
+        shadow-intensity="1.8"
+        shadow-softness="0.5"
+        exposure="1.1">
 
-        <!-- Navigation Drawer -->
-        <div class="control-panel">
-            <div>
-                <div class="label">Style Concept</div>
-                <div class="theme-scroll">
-                    <button class="theme-chip active" onclick="updateStyle('modern', this)">Modern</button>
-                    <button class="theme-chip" onclick="updateStyle('wizard', this)">Wizard</button>
-                    <button class="theme-chip" onclick="updateStyle('younger', this)">Younger</button>
-                    <button class="theme-chip" onclick="updateStyle('gaming', this)">Gaming</button>
-                </div>
+        <div class="drawer">
+            <div class="section-header">1. Select Style</div>
+            <div class="theme-carousel">
+                <button class="theme-pill active" onclick="updateTheme('modern', this)">Modern</button>
+                <button class="theme-pill" onclick="updateTheme('wizard', this)">Wizard</button>
+                <button class="theme-pill" onclick="updateTheme('younger', this)">Younger</button>
+                <button class="theme-pill" onclick="updateTheme('gaming', this)">Gaming</button>
             </div>
 
-            <div>
-                <div class="label">Select Furniture</div>
-                <div class="furniture-grid">
-                    <button class="item-action active" onclick="updateItem('desk', this)">
-                        <i class="fa-solid fa-desk"></i>
-                        <span>DESK</span>
-                    </button>
-                    <button class="item-action" onclick="updateItem('bed', this)">
-                        <i class="fa-solid fa-bed"></i>
-                        <span>BED</span>
-                    </button>
-                    <button class="item-action" onclick="updateItem('chair', this)">
-                        <i class="fa-solid fa-chair-office"></i>
-                        <span>CHAIR</span>
-                    </button>
-                    <button class="item-action" onclick="updateItem('wardrobe', this)">
-                        <i class="fa-solid fa-closet"></i>
-                        <span>WARDROBE</span>
-                    </button>
-                </div>
+            <div class="section-header">2. Place Furniture</div>
+            <div class="action-grid">
+                <button class="action-item active" onclick="updateItem('desk', this)">
+                    <i class="fa-solid fa-desktop"></i>
+                    <span>DESK</span>
+                </button>
+                <button class="action-item" onclick="updateItem('bed', this)">
+                    <i class="fa-solid fa-bed"></i>
+                    <span>BED</span>
+                </button>
+                <button class="action-item" onclick="updateItem('chair', this)">
+                    <i class="fa-solid fa-chair"></i>
+                    <span>CHAIR</span>
+                </button>
+                <button class="action-item" onclick="updateItem('wardrobe', this)">
+                    <i class="fa-solid fa-door-closed"></i>
+                    <span>WARDROBE</span>
+                </button>
             </div>
         </div>
-
     </model-viewer>
 
     <script>
-        let selectedTheme = 'modern';
-        let selectedItem = 'desk';
-        const modelElement = document.getElementById('view3d');
+        let currentTheme = 'modern';
+        let currentItem = 'desk';
+        const viewer = document.getElementById('planner-viewer');
 
-        function updateStyle(style, el) {
-            selectedTheme = style;
-            document.querySelectorAll('.theme-chip').forEach(btn => btn.classList.remove('active'));
-            el.classList.add('active');
-            refreshModel();
+        function updateTheme(t, btn) {
+            currentTheme = t;
+            document.querySelectorAll('.theme-pill').forEach(pill => pill.classList.remove('active'));
+            btn.classList.add('active');
+            refreshApp();
         }
 
-        function updateItem(item, el) {
-            selectedItem = item;
-            document.querySelectorAll('.item-action').forEach(btn => btn.classList.remove('active'));
-            el.classList.add('active');
-            refreshModel();
+        function updateItem(i, btn) {
+            currentItem = i;
+            document.querySelectorAll('.action-item').forEach(item => item.classList.remove('active'));
+            btn.classList.add('active');
+            refreshApp();
         }
 
-        function refreshModel() {
-            // Concatenates theme and item into filename: e.g., gaming_chair.glb
-            const targetFile = `${selectedTheme}_${selectedItem}.glb`;
-            modelElement.src = targetFile;
-            console.log(`Now viewing: ${targetFile}`);
+        function refreshApp() {
+            // Logic: theme_item.glb (e.g., modern_desk.glb)
+            const modelPath = `${currentTheme}_${currentItem}.glb`;
+            viewer.src = modelPath;
+            console.log(`Loading: ${modelPath}`);
         }
     </script>
 </body>
