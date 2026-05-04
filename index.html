@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>AR Room Planner | Final Project</title>
+    <title>AR Room Planner | Pro Edition</title>
     
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.2.0/model-viewer.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -11,14 +11,14 @@
     <style>
         :root {
             --primary: #007AFF;
-            --surface: rgba(18, 18, 18, 0.98);
+            --surface: rgba(15, 15, 15, 0.98);
             --text-main: #FFFFFF;
             --text-dim: #888888;
         }
 
         body { 
             margin: 0; background: #000; 
-            font-family: 'Inter', -apple-system, sans-serif; 
+            font-family: -apple-system, BlinkMacSystemFont, "Inter", sans-serif; 
             color: var(--text-main); overflow: hidden; 
         }
 
@@ -49,7 +49,7 @@
             padding: 24px; z-index: 100;
         }
 
-        .section-header { font-size: 0.65rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 15px; }
+        .section-header { font-size: 0.65rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; }
 
         .theme-carousel { display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; margin-bottom: 25px; }
         .theme-pill {
@@ -85,8 +85,13 @@
 
     <model-viewer id="planner"
         src="modern_desk.glb" 
-        ar ar-modes="scene-viewer webxr quick-look" ar-placement="floor" ar-scale="auto"
-        camera-controls touch-action="pan-y" shadow-intensity="2" exposure="1.2">
+        ar ar-modes="scene-viewer webxr quick-look" 
+        ar-placement="floor" 
+        ar-scale="auto"
+        camera-controls 
+        touch-action="pan-y" 
+        shadow-intensity="2" 
+        exposure="1.2">
 
         <div class="drawer">
             <div class="section-header">1. Select Style</div>
@@ -120,33 +125,11 @@
         let currentTheme = 'modern';
         let currentItem = 'desk';
 
-        // DEFINISI SETIAP FAIL (MAP)
-        // Jika nama fail anda berbeza, tukar di sini sahaja.
         const modelMap = {
-            modern: {
-                desk: "modern_desk.glb",
-                bed: "modern_bed.glb",
-                chair: "modern_chair.glb",
-                wardrobe: "modern_wardrobe.glb"
-            },
-            wizard: {
-                desk: "wizard_desk.glb",
-                bed: "wizard_bed.glb",
-                chair: "wizard_chair.glb",
-                wardrobe: "wizard_wardrobe.glb"
-            },
-            younger: {
-                desk: "younger_desk.glb",
-                bed: "younger_bed.glb",
-                chair: "younger_chair.glb",
-                wardrobe: "younger_wardrobe.glb"
-            },
-            gaming: {
-                desk: "gaming_desk.glb",
-                bed: "gaming_bed.glb",
-                chair: "gaming_chair.glb",
-                wardrobe: "gaming_wardrobe.glb"
-            }
+            modern: { desk: "modern_desk.glb", bed: "modern_bed.glb", chair: "modern_chair.glb", wardrobe: "modern_wardrobe.glb" },
+            wizard: { desk: "wizard_desk.glb", bed: "wizard_bed.glb", chair: "wizard_chair.glb", wardrobe: "wizard_wardrobe.glb" },
+            younger: { desk: "younger_desk.glb", bed: "younger_bed.glb", chair: "younger_chair.glb", wardrobe: "younger_wardrobe.glb" },
+            gaming: { desk: "gaming_desk.glb", bed: "gaming_bed.glb", chair: "gaming_chair.glb", wardrobe: "gaming_wardrobe.glb" }
         };
 
         function updateTheme(t) {
@@ -164,13 +147,18 @@
         }
 
         function render() {
-            // Ambil fail terus dari modelMap yang kita define di atas
             const targetFile = modelMap[currentTheme][currentItem];
             
-            // Masukkan ke dalam viewer
-            viewer.src = targetFile;
-            
-            console.log("Memuatkan Model dari Senarai: " + targetFile);
+            // Log untuk kita semak fail mana yang sedang dipanggil
+            console.log("Pilihan Semasa:", currentTheme, currentItem);
+            console.log("Memuatkan Fail:", targetFile);
+
+            // CARA PALING AGRESIF UNTUK TUKAR SRC
+            // Kita reset src dulu sekejap sebelum masukkan yang baru
+            viewer.src = ""; 
+            setTimeout(() => {
+                viewer.setAttribute('src', targetFile);
+            }, 50);
         }
     </script>
 </body>
