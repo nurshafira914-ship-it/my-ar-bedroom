@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>AR Room Planner | Professional Interior Tool</title>
+    <title>AR Room Planner | Pro Edition</title>
     
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.2.0/model-viewer.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -11,7 +11,7 @@
     <style>
         :root {
             --primary: #007AFF;
-            --surface: rgba(15, 15, 15, 0.95);
+            --surface: rgba(15, 15, 15, 0.96);
             --text-main: #FFFFFF;
             --text-dim: #888888;
         }
@@ -28,10 +28,11 @@
             --poster-color: transparent;
         }
 
+        /* Top Bar */
         .header {
             position: absolute; top: 0; width: 100%; padding: 25px 20px;
             display: flex; justify-content: space-between; align-items: center;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, transparent 100%);
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, transparent 100%);
             z-index: 10; box-sizing: border-box;
         }
         .brand { font-weight: 900; letter-spacing: 1px; font-size: 1.1rem; text-transform: uppercase; }
@@ -42,43 +43,44 @@
             color: white; border: none; padding: 12px 22px;
             border-radius: 50px; font-weight: 700; font-size: 0.85rem;
             display: flex; align-items: center; gap: 10px;
-            box-shadow: 0 4px 20px rgba(0, 122, 255, 0.4);
+            box-shadow: 0 4px 15px rgba(0, 122, 255, 0.4);
         }
 
+        /* Bottom Menu */
         .drawer {
             position: absolute; bottom: 20px; left: 12px; right: 12px;
             background: var(--surface);
-            backdrop-filter: blur(35px); -webkit-backdrop-filter: blur(35px);
-            border-radius: 32px; border: 1px solid rgba(255,255,255,0.08);
-            padding: 24px; z-index: 100;
+            backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
+            border-radius: 30px; border: 1px solid rgba(255,255,255,0.1);
+            padding: 20px; z-index: 100;
         }
 
-        .section-header { font-size: 0.65rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 15px; }
+        .section-header { font-size: 0.65rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px; }
 
-        .theme-carousel { display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; margin-bottom: 25px; }
+        .theme-carousel { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin-bottom: 18px; }
         .theme-carousel::-webkit-scrollbar { display: none; }
 
         .theme-pill {
-            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
-            color: white; padding: 10px 22px; border-radius: 50px; 
-            white-space: nowrap; font-size: 0.85rem; font-weight: 600;
+            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+            color: white; padding: 10px 20px; border-radius: 50px; 
+            white-space: nowrap; font-size: 0.8rem; font-weight: 600;
         }
         .theme-pill.active { background: white; color: black; }
 
-        .action-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+        .action-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
         
         .action-item {
             background: transparent; border: none; color: var(--text-dim);
-            display: flex; flex-direction: column; align-items: center; gap: 10px;
+            display: flex; flex-direction: column; align-items: center; gap: 8px;
         }
         .action-item i { 
-            width: 55px; height: 55px; background: rgba(255,255,255,0.04); 
-            border-radius: 20px; display: flex; align-items: center; justify-content: center;
-            font-size: 1.2rem; transition: 0.3s;
+            width: 52px; height: 52px; background: rgba(255,255,255,0.05); 
+            border-radius: 18px; display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; transition: 0.3s;
         }
         .action-item.active { color: var(--primary); }
-        .action-item.active i { background: var(--primary); color: white; transform: translateY(-5px); }
-        .action-item span { font-size: 0.6rem; font-weight: 800; }
+        .action-item.active i { background: var(--primary); color: white; transform: translateY(-3px); }
+        .action-item span { font-size: 0.55rem; font-weight: 800; }
     </style>
 </head>
 <body>
@@ -86,45 +88,50 @@
     <header class="header">
         <div class="brand">AR <span>ROOM PLANNER</span></div>
         <button id="ar-button" slot="ar-button">
-            <i class="fa-solid fa-expand"></i> START AR
+            <i class="fa-solid fa-cube"></i> START AR
         </button>
     </header>
 
-    <model-viewer id="planner-viewer"
+    <!-- 
+        Fungsi Move, Rotate, Resize diaktifkan melalui:
+        1. ar-scale="auto" (Cubit untuk Resize)
+        2. camera-controls (Satu jari untuk Rotate/Move)
+    -->
+    <model-viewer id="main-view"
         src="modern_desk.glb" 
         ar
         ar-modes="scene-viewer webxr quick-look"
         ar-placement="floor"
         ar-scale="auto"
         camera-controls
-        touch-action="pan-y"
-        shadow-intensity="1.8"
-        exposure="1.1">
+        interaction-prompt="auto"
+        shadow-intensity="2"
+        exposure="1.2">
 
         <div class="drawer">
-            <div class="section-header">1. Select Style</div>
+            <div class="section-header">1. Style Theme</div>
             <div class="theme-carousel">
-                <button class="theme-pill active" onclick="updateTheme('modern', this)">Modern</button>
-                <button class="theme-pill" onclick="updateTheme('wizard', this)">Wizard</button>
-                <button class="theme-pill" onclick="updateTheme('younger', this)">Younger</button>
-                <button class="theme-pill" onclick="updateTheme('gaming', this)">Gaming</button>
+                <button id="t-modern" class="theme-pill active" onclick="setTheme('modern')">Modern</button>
+                <button id="t-wizard" class="theme-pill" onclick="setTheme('wizard')">Wizard</button>
+                <button id="t-younger" class="theme-pill" onclick="setTheme('younger')">Younger</button>
+                <button id="t-gaming" class="theme-pill" onclick="setTheme('gaming')">Gaming</button>
             </div>
 
-            <div class="section-header">2. Place Furniture</div>
+            <div class="section-header">2. Furniture Selection</div>
             <div class="action-grid">
-                <button class="action-item active" onclick="updateItem('desk', this)">
+                <button id="i-desk" class="action-item active" onclick="setItem('desk')">
                     <i class="fa-solid fa-desktop"></i>
                     <span>DESK</span>
                 </button>
-                <button class="action-item" onclick="updateItem('bed', this)">
+                <button id="i-bed" class="action-item" onclick="setItem('bed')">
                     <i class="fa-solid fa-bed"></i>
                     <span>BED</span>
                 </button>
-                <button class="action-item" onclick="updateItem('chair', this)">
+                <button id="i-chair" class="action-item" onclick="setItem('chair')">
                     <i class="fa-solid fa-chair"></i>
                     <span>CHAIR</span>
                 </button>
-                <button class="action-item" onclick="updateItem('wardrobe', this)">
+                <button id="i-wardrobe" class="action-item" onclick="setItem('wardrobe')">
                     <i class="fa-solid fa-door-closed"></i>
                     <span>WARDROBE</span>
                 </button>
@@ -133,41 +140,29 @@
     </model-viewer>
 
     <script>
-        // Data model untuk memastikan fail dipanggil dengan betul
-        const viewer = document.getElementById('planner-viewer');
+        const viewer = document.getElementById('main-view');
         let currentTheme = 'modern';
         let currentItem = 'desk';
 
-        function updateTheme(themeName, element) {
-            currentTheme = themeName;
-            
-            // Update UI
-            document.querySelectorAll('.theme-pill').forEach(btn => btn.classList.remove('active'));
-            element.classList.add('active');
-            
-            loadModel();
+        function setTheme(t) {
+            currentTheme = t;
+            document.querySelectorAll('.theme-pill').forEach(b => b.classList.remove('active'));
+            document.getElementById('t-' + t).classList.add('active');
+            updateModel();
         }
 
-        function updateItem(itemName, element) {
-            currentItem = itemName;
-            
-            // Update UI
-            document.querySelectorAll('.action-item').forEach(btn => btn.classList.remove('active'));
-            element.classList.add('active');
-            
-            loadModel();
+        function setItem(i) {
+            currentItem = i;
+            document.querySelectorAll('.action-item').forEach(b => b.classList.remove('active'));
+            document.getElementById('i-' + i).classList.add('active');
+            updateModel();
         }
 
-        function loadModel() {
-            // Membina nama fail secara dinamik berdasarkan pilihan user
-            // Contoh: "gaming" + "_" + "chair" + ".glb" => "gaming_chair.glb"
-            const targetFile = currentTheme + "_" + currentItem + ".js" ? currentTheme + "_" + currentItem + ".glb" : "";
-            
-            // Memberitahu model-viewer untuk tukar src
-            viewer.setAttribute('src', targetFile);
-            
-            // Log untuk debugging (anda boleh nampak fail apa yang dipanggil di Inspect Element)
-            console.log("Memuatkan fail: " + targetFile);
+        function updateModel() {
+            // Membina nama fail: tema_perabot.glb
+            const target = currentTheme + "_" + currentItem + ".glb";
+            viewer.src = target;
+            console.log("Loading: " + target);
         }
     </script>
 </body>
