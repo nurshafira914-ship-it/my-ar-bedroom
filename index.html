@@ -2,105 +2,189 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AR Theme Bedroom Designer</title>
-    <!-- Using the latest 2026 Model Viewer stable release -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Borneya | AR Interior Design</title>
+    
+    <!-- Model Viewer & FontAwesome for Professional Icons -->
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.2.0/model-viewer.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
     <style>
-        body { margin: 0; background: #121212; color: white; font-family: 'Segoe UI', Roboto, sans-serif; overflow: hidden; }
-        .container { display: flex; flex-direction: column; height: 100vh; }
+        :root {
+            --primary: #007AFF;
+            --surface: rgba(18, 18, 18, 0.85);
+            --accent: #00E5FF;
+            --text-main: #FFFFFF;
+            --text-dim: #A0A0A0;
+        }
+
+        body { 
+            margin: 0; 
+            background: #000; 
+            font-family: 'Inter', -apple-system, sans-serif; 
+            color: var(--text-main); 
+            overflow: hidden; 
+        }
+
+        /* Fullscreen Viewport */
+        model-viewer {
+            width: 100vw;
+            height: 100vh;
+            background-color: #000;
+            --poster-color: transparent;
+        }
+
+        /* Top Header Navigation */
+        .header {
+            position: absolute; top: 0; width: 100%; padding: 20px 24px;
+            display: flex; justify-content: space-between; align-items: center;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, transparent 100%);
+            z-index: 10;
+        }
+        .brand { font-size: 1.1rem; font-weight: 800; letter-spacing: 2px; }
+        .brand span { color: var(--primary); }
+
+        #ar-launch-btn {
+            background: var(--primary);
+            color: white; border: none; padding: 10px 20px;
+            border-radius: 50px; font-weight: 600; font-size: 0.85rem;
+            display: flex; align-items: center; gap: 8px;
+            box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3);
+        }
+
+        /* Bottom Interactive Drawer */
+        .control-panel {
+            position: absolute; bottom: 20px; left: 16px; right: 16px;
+            background: var(--surface);
+            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            border-radius: 28px; border: 1px solid rgba(255,255,255,0.1);
+            padding: 20px; z-index: 100;
+            display: flex; flex-direction: column; gap: 18px;
+        }
+
+        .label { font-size: 0.65rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.2px; }
+
+        /* Theme Carousel */
+        .theme-scroll { 
+            display: flex; gap: 10px; overflow-x: auto; 
+            scrollbar-width: none; padding-bottom: 4px;
+        }
+        .theme-scroll::-webkit-scrollbar { display: none; }
+
+        .theme-chip {
+            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-main); padding: 8px 18px; border-radius: 50px; 
+            white-space: nowrap; font-size: 0.8rem; font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        .theme-chip.active { background: white; color: black; border-color: white; }
+
+        /* Furniture Action Grid */
+        .furniture-grid { 
+            display: grid; grid-template-columns: repeat(4, 1fr); 
+            gap: 12px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 18px;
+        }
         
-        /* Top Theme Bar */
-        .theme-bar { 
-            display: flex; gap: 10px; overflow-x: auto; padding: 15px; 
-            background: #1e1e1e; border-bottom: 1px solid #333; scrollbar-width: none;
+        .item-action {
+            background: transparent; border: none; color: var(--text-dim);
+            display: flex; flex-direction: column; align-items: center; gap: 8px;
+            transition: 0.3s; cursor: pointer;
         }
-        .theme-btn { 
-            padding: 10px 20px; border-radius: 20px; border: 1px solid #444; 
-            background: transparent; color: white; white-space: nowrap; cursor: pointer;
+        .item-action i { 
+            width: 52px; height: 52px; background: rgba(255,255,255,0.05); 
+            border-radius: 18px; display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .theme-btn.active { background: #007bff; border-color: #007bff; box-shadow: 0 0 10px rgba(0,123,255,0.5); }
+        .item-action span { font-size: 0.6rem; font-weight: 700; }
+        
+        .item-action.active { color: var(--primary); }
+        .item-action.active i { background: var(--primary); color: white; transform: scale(1.1); }
 
-        /* AR View Area */
-        model-viewer { flex-grow: 1; width: 100%; background: #000; --poster-color: transparent; }
-
-        /* Bottom Furniture Bar */
-        .furniture-bar { 
-            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
-            display: flex; gap: 12px; background: rgba(0,0,0,0.85); 
-            padding: 15px 25px; border-radius: 50px; backdrop-filter: blur(10px);
-        }
-        .item-btn { 
-            padding: 10px 15px; border-radius: 12px; border: none; 
-            background: #333; color: white; font-size: 0.75rem; font-weight: bold;
-        }
-        .item-btn.active { background: #fff; color: #000; }
-
-        #ar-prompt { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #888; pointer-events: none; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <!-- 1. Theme Selection (Modern, Wizard, Youngers, Gaming) -->
-    <div class="theme-bar">
-        <button class="theme-btn active" onclick="setTheme('modern', this)">✨ Modern</button>
-        <button class="theme-btn" onclick="setTheme('wizard', this)">🪄 Wizard</button>
-        <button class="theme-btn" onclick="setTheme('younger', this)">🛹 Younger</button>
-        <button class="theme-btn" onclick="setTheme('gaming', this)">🎮 Gaming</button>
-    </div>
+    <header class="header">
+        <div class="brand">BORNE<span>YA</span></div>
+        <button id="ar-launch-btn" slot="ar-button">
+            <i class="fa-solid fa-expand"></i> START AR
+        </button>
+    </header>
 
-    <!-- 2. The Main Viewer -->
-    <!-- Prioritizing scene-viewer for Xiaomi stability -->
-    <model-viewer id="main-view" 
-        src="modern_desk.glb" 
-        ar 
-        ar-modes="scene-viewer webxr quick-look" 
-        camera-controls 
-        ar-placement="floor" 
-        shadow-intensity="1" 
-        environment-image="neutral"
+    <!-- Main 3D Engine -->
+    <model-viewer id="view3d"
+        src="modern_desk.glb"
+        ar
+        ar-modes="scene-viewer webxr quick-look"
+        ar-placement="floor"
+        camera-controls
+        shadow-intensity="1.5"
+        shadow-softness="0.8"
+        exposure="1.1"
         touch-action="pan-y">
-        
-        <div id="ar-prompt">Loading 3D Scene...</div>
 
-        <!-- 3. Furniture Selection (Desk, Chair, Bed, Wardrobe) -->
-        <div class="furniture-bar" slot="footer">
-            <button class="item-btn active" id="btn-desk" onclick="setItem('desk')">DESK</button>
-            <button class="item-btn" id="btn-chair" onclick="setItem('chair')">CHAIR</button>
-            <button class="item-btn" id="btn-bed" onclick="setItem('bed')">BED</button>
-            <button class="item-btn" id="btn-wardrobe" onclick="setItem('wardrobe')">WARDROBE</button>
+        <!-- Navigation Drawer -->
+        <div class="control-panel">
+            <div>
+                <div class="label">Style Concept</div>
+                <div class="theme-scroll">
+                    <button class="theme-chip active" onclick="updateStyle('modern', this)">Modern</button>
+                    <button class="theme-chip" onclick="updateStyle('wizard', this)">Wizard</button>
+                    <button class="theme-chip" onclick="updateStyle('younger', this)">Younger</button>
+                    <button class="theme-chip" onclick="updateStyle('gaming', this)">Gaming</button>
+                </div>
+            </div>
+
+            <div>
+                <div class="label">Select Furniture</div>
+                <div class="furniture-grid">
+                    <button class="item-action active" onclick="updateItem('desk', this)">
+                        <i class="fa-solid fa-desk"></i>
+                        <span>DESK</span>
+                    </button>
+                    <button class="item-action" onclick="updateItem('bed', this)">
+                        <i class="fa-solid fa-bed"></i>
+                        <span>BED</span>
+                    </button>
+                    <button class="item-action" onclick="updateItem('chair', this)">
+                        <i class="fa-solid fa-chair-office"></i>
+                        <span>CHAIR</span>
+                    </button>
+                    <button class="item-action" onclick="updateItem('wardrobe', this)">
+                        <i class="fa-solid fa-closet"></i>
+                        <span>WARDROBE</span>
+                    </button>
+                </div>
+            </div>
         </div>
+
     </model-viewer>
-</div>
 
-<script>
-    let currentTheme = 'modern';
-    let currentItem = 'desk';
-    const viewer = document.querySelector('#main-view');
+    <script>
+        let selectedTheme = 'modern';
+        let selectedItem = 'desk';
+        const modelElement = document.getElementById('view3d');
 
-    function setTheme(theme, btn) {
-        currentTheme = theme;
-        // Update Theme UI
-        document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        updateModel();
-    }
+        function updateStyle(style, el) {
+            selectedTheme = style;
+            document.querySelectorAll('.theme-chip').forEach(btn => btn.classList.remove('active'));
+            el.classList.add('active');
+            refreshModel();
+        }
 
-    function setItem(item) {
-        currentItem = item;
-        // Update Item UI
-        document.querySelectorAll('.item-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById('btn-' + item).classList.add('active');
-        updateModel();
-    }
+        function updateItem(item, el) {
+            selectedItem = item;
+            document.querySelectorAll('.item-action').forEach(btn => btn.classList.remove('active'));
+            el.classList.add('active');
+            refreshModel();
+        }
 
-    function updateModel() {
-        const fileName = `${currentTheme}_${currentItem}.glb`;
-        viewer.src = fileName;
-        console.log("Loading model: " + fileName);
-    }
-</script>
-
+        function refreshModel() {
+            // Concatenates theme and item into filename: e.g., gaming_chair.glb
+            const targetFile = `${selectedTheme}_${selectedItem}.glb`;
+            modelElement.src = targetFile;
+            console.log(`Now viewing: ${targetFile}`);
+        }
+    </script>
 </body>
 </html>
