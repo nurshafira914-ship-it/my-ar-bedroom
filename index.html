@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theme-Based AR Bedroom</title>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.2.0/model-viewer.min.js"></script>
+    <style>
+        body { margin: 0; background: #121212; color: white; font-family: sans-serif; overflow: hidden; }
+        model-viewer { width: 100vw; height: 100vh; }
+        .ui-panel { position: absolute; bottom: 20px; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 15px; }
+        .theme-selector { display: flex; gap: 10px; background: rgba(0,0,0,0.6); padding: 10px; border-radius: 30px; }
+        .item-selector { display: flex; gap: 8px; }
+        button { border: none; padding: 10px 18px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+        .theme-btn { background: #333; color: #fff; border: 1px solid #555; }
+        .theme-btn.active { background: #ff007b; border-color: #ff007b; }
+        .item-btn { background: #fff; color: #000; }
+    </style>
+</head>
+<body>
+
+<model-viewer id="ar-view" src="modern_desk.glb" ar ar-modes="webxr scene-viewer" camera-controls ar-placement="floor" shadow-intensity="1">
+    
+    <div class="ui-panel" slot="footer">
+        <!-- Theme Selection -->
+        <div class="theme-selector">
+            <button class="theme-btn active" onclick="setTheme('modern', this)">Modern</button>
+            <button class="theme-btn" onclick="setTheme('wizard', this)">Wizard</button>
+            <button class="theme-btn" onclick="setTheme('younger', this)">Younger</button>
+            <button class="theme-btn" onclick="setTheme('gaming', this)">Gaming</button>
+        </div>
+
+        <!-- Furniture Selection -->
+        <div class="item-selector">
+            <button class="item-btn" onclick="setItem('desk')">Desk</button>
+            <button class="item-btn" onclick="setItem('chair')">Chair</button>
+            <button class="item-btn" onclick="setItem('bed')">Bed</button>
+            <button class="item-btn" onclick="setItem('wardrobe')">Wardrobe</button>
+        </div>
+    </div>
+</model-viewer>
+
+<script>
+    let currentTheme = 'modern';
+    let currentItem = 'desk';
+    const viewer = document.querySelector('#ar-view');
+
+    function setTheme(theme, btn) {
+        currentTheme = theme;
+        document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        updateModel();
+    }
+
+    function setItem(item) {
+        currentItem = item;
+        updateModel();
+    }
+
+    function updateModel() {
+        viewer.src = `${currentTheme}_${currentItem}.glb`;
+    }
+</script>
+
+</body>
+</html>
