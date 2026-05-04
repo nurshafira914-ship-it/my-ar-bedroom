@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>AR Room Planner | Professional Interior Tool</title>
     
-    <!-- Latest Model Viewer & Icon Library -->
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.2.0/model-viewer.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
@@ -13,61 +12,49 @@
         :root {
             --primary: #007AFF;
             --surface: rgba(15, 15, 15, 0.95);
-            --glass: rgba(255, 255, 255, 0.1);
             --text-main: #FFFFFF;
             --text-dim: #888888;
         }
 
         body { 
-            margin: 0; 
-            background: #000; 
+            margin: 0; background: #000; 
             font-family: -apple-system, BlinkMacSystemFont, "Inter", sans-serif; 
-            color: var(--text-main); 
-            overflow: hidden; 
+            color: var(--text-main); overflow: hidden; 
         }
 
-        /* Viewport Container */
         model-viewer {
-            width: 100vw;
-            height: 100vh;
+            width: 100vw; height: 100vh;
             background-color: #111;
             --poster-color: transparent;
         }
 
-        /* Top Navigation Header */
         .header {
             position: absolute; top: 0; width: 100%; padding: 25px 20px;
             display: flex; justify-content: space-between; align-items: center;
             background: linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, transparent 100%);
-            z-index: 10;
-            box-sizing: border-box;
+            z-index: 10; box-sizing: border-box;
         }
         .brand { font-weight: 900; letter-spacing: 1px; font-size: 1.1rem; text-transform: uppercase; }
         .brand span { color: var(--primary); }
 
-        /* AR Activation Button */
         #ar-button {
             background: var(--primary);
             color: white; border: none; padding: 12px 22px;
             border-radius: 50px; font-weight: 700; font-size: 0.85rem;
             display: flex; align-items: center; gap: 10px;
             box-shadow: 0 4px 20px rgba(0, 122, 255, 0.4);
-            cursor: pointer;
         }
 
-        /* Interaction Drawer */
         .drawer {
             position: absolute; bottom: 20px; left: 12px; right: 12px;
             background: var(--surface);
             backdrop-filter: blur(35px); -webkit-backdrop-filter: blur(35px);
             border-radius: 32px; border: 1px solid rgba(255,255,255,0.08);
             padding: 24px; z-index: 100;
-            box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
         }
 
         .section-header { font-size: 0.65rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 15px; }
 
-        /* Theme Selector Carousel */
         .theme-carousel { display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; margin-bottom: 25px; }
         .theme-carousel::-webkit-scrollbar { display: none; }
 
@@ -75,28 +62,23 @@
             background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
             color: white; padding: 10px 22px; border-radius: 50px; 
             white-space: nowrap; font-size: 0.85rem; font-weight: 600;
-            transition: all 0.3s ease;
         }
-        .theme-pill.active { background: white; color: black; transform: scale(1.05); }
+        .theme-pill.active { background: white; color: black; }
 
-        /* Furniture Action Grid */
         .action-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
         
         .action-item {
             background: transparent; border: none; color: var(--text-dim);
             display: flex; flex-direction: column; align-items: center; gap: 10px;
-            transition: 0.3s; cursor: pointer;
         }
         .action-item i { 
-            width: 58px; height: 58px; background: rgba(255,255,255,0.04); 
-            border-radius: 22px; display: flex; align-items: center; justify-content: center;
-            font-size: 1.3rem; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            width: 55px; height: 55px; background: rgba(255,255,255,0.04); 
+            border-radius: 20px; display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; transition: 0.3s;
         }
-        .action-item span { font-size: 0.6rem; font-weight: 800; letter-spacing: 0.5px; }
-        
         .action-item.active { color: var(--primary); }
-        .action-item.active i { background: var(--primary); color: white; transform: translateY(-6px) scale(1.1); box-shadow: 0 8px 20px rgba(0, 122, 255, 0.3); }
-
+        .action-item.active i { background: var(--primary); color: white; transform: translateY(-5px); }
+        .action-item span { font-size: 0.6rem; font-weight: 800; }
     </style>
 </head>
 <body>
@@ -108,13 +90,8 @@
         </button>
     </header>
 
-    <!-- 
-        AR Configuration:
-        - ar-scale="auto" allows pinch-to-resize
-        - camera-controls allows rotation and movement
-    -->
     <model-viewer id="planner-viewer"
-        src="modern_desk.glb"
+        src="modern_desk.glb" 
         ar
         ar-modes="scene-viewer webxr quick-look"
         ar-placement="floor"
@@ -122,7 +99,6 @@
         camera-controls
         touch-action="pan-y"
         shadow-intensity="1.8"
-        shadow-softness="0.5"
         exposure="1.1">
 
         <div class="drawer">
@@ -157,29 +133,41 @@
     </model-viewer>
 
     <script>
+        // Data model untuk memastikan fail dipanggil dengan betul
+        const viewer = document.getElementById('planner-viewer');
         let currentTheme = 'modern';
         let currentItem = 'desk';
-        const viewer = document.getElementById('planner-viewer');
 
-        function updateTheme(t, btn) {
-            currentTheme = t;
-            document.querySelectorAll('.theme-pill').forEach(pill => pill.classList.remove('active'));
-            btn.classList.add('active');
-            refreshApp();
+        function updateTheme(themeName, element) {
+            currentTheme = themeName;
+            
+            // Update UI
+            document.querySelectorAll('.theme-pill').forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+            
+            loadModel();
         }
 
-        function updateItem(i, btn) {
-            currentItem = i;
-            document.querySelectorAll('.action-item').forEach(item => item.classList.remove('active'));
-            btn.classList.add('active');
-            refreshApp();
+        function updateItem(itemName, element) {
+            currentItem = itemName;
+            
+            // Update UI
+            document.querySelectorAll('.action-item').forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+            
+            loadModel();
         }
 
-        function refreshApp() {
-            // Logic: theme_item.glb (e.g., modern_desk.glb)
-            const modelPath = `${currentTheme}_${currentItem}.glb`;
-            viewer.src = modelPath;
-            console.log(`Loading: ${modelPath}`);
+        function loadModel() {
+            // Membina nama fail secara dinamik berdasarkan pilihan user
+            // Contoh: "gaming" + "_" + "chair" + ".glb" => "gaming_chair.glb"
+            const targetFile = currentTheme + "_" + currentItem + ".js" ? currentTheme + "_" + currentItem + ".glb" : "";
+            
+            // Memberitahu model-viewer untuk tukar src
+            viewer.setAttribute('src', targetFile);
+            
+            // Log untuk debugging (anda boleh nampak fail apa yang dipanggil di Inspect Element)
+            console.log("Memuatkan fail: " + targetFile);
         }
     </script>
 </body>
